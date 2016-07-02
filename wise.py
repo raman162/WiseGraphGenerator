@@ -16,6 +16,7 @@ class School:
 		self.homeworks={}
 		self.dates=dates
 		self.setSchoolData()
+		self.generateGraphs()
 
 	def addStudent(self, student):
 		self.students[student.code]=student
