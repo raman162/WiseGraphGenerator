@@ -156,15 +156,26 @@ class School:
 		
 	
 class Student:
+	# GRADE 2 CODES
+	FREEMANGRADE2CODES=list(range(1,13))
+	OLDROADGRADE2CODES=list(range(31,43))
+	GRADE2CODES=FREEMANGRADE2CODES+OLDROADGRADE2CODES
+	
+	# GRADE 4 CODES
+	FREEMANGRADE4CODES=list(range(13,31))
+	OLDROADGRADE4CODES=list(range(43,58))
+	GRADE4CODES=FREEMANGRADE4CODES+OLDROADGRADE4CODES
 	def __init__(self, code, gender):
 		self.code=code
 		self.gender=gender
 
 	def getGrade(self):
-		if self.code < 13:
+		if self.code in self.GRADE2CODES:
 			return 2
-		else:
+		if self.code in self.GRADE4CODES:
 			return 4
+		else:
+			return False
 
 class Homework:
 	def __init__(self, subject, comprehension, date):
