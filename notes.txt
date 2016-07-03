@@ -1,0 +1,4 @@
+1 homework on time and completed
+5 homework not done
+
+See frequencies of both

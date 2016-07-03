@@ -116,6 +116,8 @@ class School:
 		data=self.getAverages(grade, subject, gender)
 		xdata=list(range(0, len(data)))
 		ydata=list(data.values())
+		miny=min(ydata)-0.5
+		maxy=max(ydata)+0.5
 		# USED FOR SMOOTH GRAPHS
 		# x_sm=np.array(xdata)
 		# y_sm=np.array(ydata)
@@ -127,6 +129,7 @@ class School:
 			vals.append(slope*i+intercept)
 		plt.plot(xdata, ydata, '--')
 		plt.plot(xdata, vals, 'b')
+		plt.text(len(data)+1, vals[-1], str(slope)[0:6])
 		plt.xlabel('Days')
 		plt.ylabel('Average Comprehension')
 		subject="Math" if subject=="math" else "English"
@@ -136,7 +139,7 @@ class School:
 			gender="Male" if gender=="m" else "Female" 
 		title=self.name +" Grade " +str(grade)  +" " +subject +" " +gender 
 		plt.title(title)
-		plt.axis([0,len(data),3,6])
+		plt.axis([0,len(data),miny,maxy])
 		plt.savefig(self.name+"Graphs/"+filename+'.png')
 		plt.clf()
 
@@ -159,12 +162,16 @@ class Student:
 	# GRADE 2 CODES
 	FREEMANGRADE2CODES=list(range(1,13))
 	OLDROADGRADE2CODES=list(range(31,43))
-	GRADE2CODES=FREEMANGRADE2CODES+OLDROADGRADE2CODES
+	PARESGRADE2CODES=list(range(58,70))
+	SROLIVIAGRADE2CODES=list(range(129,149))
+	GRADE2CODES=FREEMANGRADE2CODES+OLDROADGRADE2CODES+PARESGRADE2CODES+SROLIVIAGRADE2CODES
 	
 	# GRADE 4 CODES
 	FREEMANGRADE4CODES=list(range(13,31))
 	OLDROADGRADE4CODES=list(range(43,58))
-	GRADE4CODES=FREEMANGRADE4CODES+OLDROADGRADE4CODES
+	PARESGRADE4CODES=list(range(70,82))
+	SROLIVIAGRADE4CODES=list(range(149,168))
+	GRADE4CODES=FREEMANGRADE4CODES+OLDROADGRADE4CODES+PARESGRADE4CODES+SROLIVIAGRADE4CODES
 	def __init__(self, code, gender):
 		self.code=code
 		self.gender=gender
