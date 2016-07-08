@@ -10,13 +10,14 @@ from scipy.interpolate import spline
 import os
 
 class School:
-	def __init__(self, name, students={}, homeworks={}, dates=[]):
+	def __init__(self, name, generate_graphs=True, students={}, homeworks={}, dates=[]):
 		self.name=name
 		self.students=students
-		self.homeworks={}
+		self.homeworks=homeworks
 		self.dates=dates
 		self.setSchoolData()
-		self.generateGraphs()
+		if generate_graphs==True:
+			self.generateGraphs() 
 
 	def addStudent(self, student):
 		self.students[student.code]=student
@@ -163,17 +164,19 @@ class Student:
 	FREEMANGRADE2CODES=list(range(1,13))
 	OLDROADGRADE2CODES=list(range(31,43))
 	PARESGRADE2CODES=list(range(58,70))
+	CEDARGRADE2CODES=list(range(82,104))
 	SROLIVIAGRADE2CODES=list(range(129,149))
 	VILLAGRADE2CODES=list(range(168,194))
-	GRADE2CODES=FREEMANGRADE2CODES+OLDROADGRADE2CODES+PARESGRADE2CODES+SROLIVIAGRADE2CODES+VILLAGRADE2CODES
+	GRADE2CODES=FREEMANGRADE2CODES+OLDROADGRADE2CODES+PARESGRADE2CODES+CEDARGRADE2CODES+SROLIVIAGRADE2CODES+VILLAGRADE2CODES
 	
 	# GRADE 4 CODES
 	FREEMANGRADE4CODES=list(range(13,31))
 	OLDROADGRADE4CODES=list(range(43,58))
 	PARESGRADE4CODES=list(range(70,82))
+	CEDARGRADE4CODES=list(range(104,129))
 	SROLIVIAGRADE4CODES=list(range(149,168))
 	VILLAGRADE4CODES=list(range(194,215))
-	GRADE4CODES=FREEMANGRADE4CODES+OLDROADGRADE4CODES+PARESGRADE4CODES+SROLIVIAGRADE4CODES+VILLAGRADE4CODES
+	GRADE4CODES=FREEMANGRADE4CODES+OLDROADGRADE4CODES+PARESGRADE4CODES+CEDARGRADE4CODES+SROLIVIAGRADE4CODES+VILLAGRADE4CODES
 	def __init__(self, code, gender):
 		self.code=code
 		self.gender=gender
@@ -191,3 +194,12 @@ class Homework:
 		self.subject=subject
 		self.comprehension=comprehension
 		self.date=date
+
+
+def createSchools():
+	schools=[]
+	freeman=School("Freeman")
+	schools.append(freeman)
+	oldRoad=School("OldRoad")
+	schools.append(oldRoad)
+	return schools
