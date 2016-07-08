@@ -8,6 +8,7 @@ import collections
 import numpy as np
 from scipy.interpolate import spline
 import os
+import gc
 
 class School:
 	def __init__(self, name, generate_graphs=True, students={}, homeworks={}, dates=[]):
@@ -71,6 +72,7 @@ class School:
 
 	def getAverages(self, grade, subject, gender=False):
 		averages={}
+		sortedAverages={}
 		for date in self.dates:
 			compCount=0
 			compTotal=0
@@ -113,7 +115,7 @@ class School:
 
 
 
-	def plotGraph(self, filename, grade, subject, gender=False):
+	def plotGradeSubjectGraph(self, filename, grade, subject, gender=False):
 		data=self.getAverages(grade, subject, gender)
 		xdata=list(range(0, len(data)))
 		ydata=list(data.values())
@@ -124,10 +126,8 @@ class School:
 		# y_sm=np.array(ydata)
 		# x_smooth=np.linspace(x_sm.min(), x_sm.max(), 200)
 		# y_smooth=spline(xdata, ydata, x_smooth)
-		slope, intercept=np.polyfit(xdata, ydata,1)
-		vals=[]
-		for i in xdata:
-			vals.append(slope*i+intercept)
+		slope, intercept, vals=self.getLinearData(xdata,ydata)
+
 		plt.plot(xdata, ydata, '--')
 		plt.plot(xdata, vals, 'b')
 		plt.text(len(data)+1, vals[-1], str(slope)[0:6])
@@ -144,20 +144,106 @@ class School:
 		plt.savefig(self.name+"Graphs/"+filename+'.png')
 		plt.clf()
 
+	def getLinearData(self, xdata, ydata):
+		slope=0
+		intercept=0
+		slope, intercept=np.polyfit(xdata, ydata,1)
+		vals=[]
+		for i in xdata:
+			vals.append(slope*i+intercept)
+		return slope, intercept, vals
 
 	def generateGraphs(self):
 		#Creates Directory for files
 		if not os.path.exists(self.name+"Graphs"):
 			os.makedirs(self.name+"Graphs")
-		self.plotGraph(self.name+"Grade2MathMale",2,'math','m')
-		self.plotGraph(self.name+"Grade2MathFemale",2,'math','f')
-		self.plotGraph(self.name+"Grade2EngMale",2,'eng','m')
-		self.plotGraph(self.name+"Grade2EngFemale",2,'eng','f')
-		self.plotGraph(self.name+"Grade4MathMale",4,'math','m')
-		self.plotGraph(self.name+"Grade4MathFemale",4,'math','f')
-		self.plotGraph(self.name+"Grade4EngMale",4,'eng','m')
-		self.plotGraph(self.name+"Grade4EngFemale",4,'eng','f')
+		self.plotGradeSubjectGraph(self.name+"Grade2MathMale",2,'math','m')
+		self.plotGradeSubjectGraph(self.name+"Grade2MathFemale",2,'math','f')
+		self.plotGradeSubjectGraph(self.name+"Grade2Math",2,'math')
+		self.plotGradeSubjectGraph(self.name+"Grade2EngMale",2,'eng','m')
+		self.plotGradeSubjectGraph(self.name+"Grade2EngFemale",2,'eng','f')
+		self.plotGradeSubjectGraph(self.name+"Grade2Eng",2,'eng')
+		self.plotGradeSubjectGraph(self.name+"Grade4MathMale",4,'math','m')
+		self.plotGradeSubjectGraph(self.name+"Grade4MathFemale",4,'math','f')
+		self.plotGradeSubjectGraph(self.name+"Grade4Math",4,'math')
+		self.plotGradeSubjectGraph(self.name+"Grade4EngMale",4,'eng','m')
+		self.plotGradeSubjectGraph(self.name+"Grade4MathFemale",4,'math','f')
+		self.plotGradeSubjectGraph(self.name+"Grade4Math",4,'math')
+
+	def getTotalComprehensionAverages(self):
 		
+		# calculates the begin and end average for each subject and grade
+		grade2MathBegin=grade2MathEnd=grade4MathBegin=grade4MathEnd=grade2EngBegin=grade2EngEnd=grade4EngBegin=grade4EngEnd=0
+		grade2MathBegin, grade2MathEnd = self.getSubjectGradeComprehensionAverages(2,'math')
+		grade4MathBegin, grade4MathEnd = self.getSubjectGradeComprehensionAverages(4,'math')
+		grade2EngBegin, grade2EngEnd = self.getSubjectGradeComprehensionAverages(2, 'eng')
+		grade4EngBegin, grade4EngEnd = self.getSubjectGradeComprehensionAverages(4, 'eng')
+		
+		# calculating total begin and end average for the school
+		beginAvg=endAvg=0
+		schoolbeginAvg=(grade2MathBegin+grade4MathBegin+grade2EngBegin+grade4EngBegin)/4
+		schoolendAvg=(grade2MathEnd+grade4MathEnd+grade2EngEnd+grade4EngEnd)/4
+
+		return schoolbeginAvg, schoolendAvg
+	def getSubjectGradeComprehensionAverages(self, grade, subject):
+		averages={}
+		xdata=[]
+		ydata=[]
+		slope=0
+		intercept=0
+		vals=[]
+		beginAvg=0
+		endAvg=0
+		averages=self.getAverages(grade, subject)
+		xdata=list(range(0, len(averages)))
+		ydata=list(averages.values())
+		slope, intercept, vals=self.getLinearData(xdata, ydata)
+		beginAvg=vals[0]
+		endAvg=vals[-1]
+		# print(grade)
+		# print(subject)
+		# print(beginAvg)
+		# print(endAvg)
+		return beginAvg, endAvg
+
+def generateComprehensionGraph(schools=False):
+	if schools==False:
+		schools=[ "Freeman"]
+	i=1
+	xtotaldata=[]
+	ytotaldata=[]
+	schoolList=[]
+	for s in schools:
+		school=School(s, False)
+		schoolList.append(school)
+		beginAvg=0
+		endAvg=0
+		beginAvg, endAvg = school.getTotalComprehensionAverages()
+		ytotaldata.append(beginAvg)
+		ytotaldata.append(endAvg)
+		ydata=[beginAvg, endAvg]
+		print(school.name)
+		print(beginAvg)
+		print(endAvg)
+		xdata=[i,i]
+		xtotaldata.append(i)
+		xtotaldata.append(i)
+		if endAvg > beginAvg:
+			plt.plot(xdata, ydata, 'g-', linewidth=10.0)
+			plt.text(i,endAvg+0.05, school.name, horizontalalignment='center')
+		else:
+			plt.plot(xdata,ydata, 'r-', linewidth=10.0)
+			plt.text(i,beginAvg+0.05, school.name, horizontalalignment='center')
+		i+=1
+		gc.collect()
+
+	plt.title("Comprehension Comparison Grade")
+	plt.ylabel("Average Comprehension")
+	plt.xlabel("Schools")
+	plt.axis([0,len(schools)+1, min(ytotaldata)-0.2, max(ytotaldata)+0.2])
+	plt.savefig('ComprehensionComparisonFreeman.png')
+	plt.clf()
+
 	
 class Student:
 	# GRADE 2 CODES
@@ -196,10 +282,3 @@ class Homework:
 		self.date=date
 
 
-def createSchools():
-	schools=[]
-	freeman=School("Freeman")
-	schools.append(freeman)
-	oldRoad=School("OldRoad")
-	schools.append(oldRoad)
-	return schools
